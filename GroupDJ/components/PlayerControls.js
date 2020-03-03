@@ -2,32 +2,44 @@ import React, { Component } from 'react';
 import { GetInfo, SwitchFunc } from '../spotifyFunctions.js'
 import { TouchableOpacity, StyleSheet, Text, View, Button, ScrollView } from 'react-native';
 import styles from '../style.js'
-
 import { SpotifyWebApi } from './Home.js'
 
 export default class CreateRoom extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
   this.state = {
     userInfo: false,
     didError: false,
     token: 'token',
-    playState: null,
+    playState: 'play',
     now_playing: null,
-    artist: null
+    artist: null,
+    is_playing: null
   };
   this.SwitchFunc = SwitchFunc.bind(this);
   this.GetInfo = GetInfo.bind(this);
 
-    SpotifyWebApi.getMyCurrentPlaybackState({
+  }
+
+componentDidMount() {
+  this.getNowPlaying();
+  this.myInterval = setInterval(() => {
+  this.getNowPlaying()}, 1000);
+}
+
+componentWillUnmount() {
+  clearInterval(this.myInterval);
+}
+
+getNowPlaying() {
+  SpotifyWebApi.getMyCurrentPlaybackState({
   })
   .then(data => {
-    // Output items
-    console.log("Now Playing: ",data.body.item);
+    // console.log("Now Playing: ",data.body.item);
     if(data.body != null)
     {
       this.setState({
-        playState: data.body.is_playing,
+        is_playing: data.body.is_playing,
         now_playing: data.body.item.name,
         artist: data.body.item.artists[0].name
       })
@@ -35,9 +47,7 @@ export default class CreateRoom extends Component {
   }, err => {
     console.log('Something went wrong!', err);
   });
-  }
-
-
+}
 
   render() {
     return(
@@ -78,9 +88,6 @@ export default class CreateRoom extends Component {
           {this.state.playState}
         </Text>
       </TouchableOpacity>
-      <Text style={styles.userInfoText}>
-      {this.state.token}
-      </Text>
       </View>
     );
   }
