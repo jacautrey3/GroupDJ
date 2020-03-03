@@ -42,8 +42,8 @@ export default class Home extends Component {
     this.setState({
       token: results.params.access_token,
     });
-    SpotifyWebApi.setAccessToken(results.params.access_token);
-    var code = results.params.access_token;
+    SpotifyWebApi.setAccessToken(results.params.access_token)
+    code = results.params.access_token;
 
     if (results.type !== 'success') {
       console.log(results.type);
@@ -116,9 +116,6 @@ export default class Home extends Component {
           Login with Spotify
         </Text>
       </TouchableOpacity>
-        <Text style={styles.userInfoText}>
-          Login to Spotify to see user data.
-        </Text>
       </View>
     )}
   }
@@ -170,23 +167,3 @@ const styles = StyleSheet.create({
     marginBottom: 32
   }
 });
-
-// <TouchableOpacity
-//   style={styles.button}
-//   onPress={this.GetInfo}
-// >
-//   <Text style={styles.buttonText}>
-//     get info
-//   </Text>
-// </TouchableOpacity>
-// <TouchableOpacity
-//   style={styles.button}
-//   onPress={this.SwitchFunc}
-// >
-//   <Text style={styles.buttonText}>
-//     {this.state.playState}
-//   </Text>
-// </TouchableOpacity>
-// <Text style={styles.userInfoText}>
-// {this.state.token}
-// </Text>
