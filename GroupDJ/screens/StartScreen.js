@@ -14,7 +14,7 @@ const StartScreen = ({ navigation }) => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.button}
-        onPress={()=>navigation.navigate("HomeScreen")}
+        onPress={()=>navigation.navigate("JoinRoomScreen")}
       >
         <Text style={styles.buttonText}>
           Join Room
