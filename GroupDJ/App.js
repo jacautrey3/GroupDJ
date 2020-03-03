@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import HomeScreen from './screens/HomeScreen.js'
 import StartScreen from './screens/StartScreen.js'
 import CreateRoomScreen from './screens/CreateRoomScreen.js'
-import RoomOwnerScreen from './screens/RoomOwnerScreen.js'
+import TabScreen from './screens/TabScreen.js'
+import RoomScreen from './screens/RoomScreen.js'
+import JoinRoomScreen from './screens/JoinRoomScreen.js'
 import firebase from 'firebase';
 
 const firebaseConfig = {
@@ -22,16 +25,19 @@ firebase.initializeApp(firebaseConfig);
 
 
 const Stack = createStackNavigator()
+const Tab = createBottomTabNavigator();
 
 export default class App extends Component {
   render() {
     return (
       <NavigationContainer>
-      <Stack.Navigator initialRouteName="StartScreen">
+      <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName="StartScreen">
         <Stack.Screen name="StartScreen" component={StartScreen}/>
         <Stack.Screen name="HomeScreen" component={HomeScreen}/>
         <Stack.Screen name="CreateRoomScreen" component={CreateRoomScreen}/>
-        <Stack.Screen name="RoomOwnerScreen" component={RoomOwnerScreen}/>
+        <Stack.Screen name="TabScreen" component={TabScreen}/>
+        <Stack.Screen name="JoinRoomScreen" component={JoinRoomScreen}/>
+        <Stack.Screen name="RoomScreen" component={RoomScreen}/>
       </Stack.Navigator>
       </NavigationContainer>
     );
