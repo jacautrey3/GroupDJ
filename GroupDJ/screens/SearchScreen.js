@@ -1,11 +1,12 @@
 import React from 'react';
 import { View } from 'react-native';
-import Search from '../components/Search.js'
+import Bar from '../components/SearchBar.js'
+import styles from '../style.js'
 
 const SearchScreen = ({ }) => {
   return(
-    <View style={{ flex: 1, display: 'flex', justifyContent: 'center'}}>
-      <Search/>
+    <View style={{ flex: 1, display: 'flex', justifyContent: 'center', backgroundColor: '#000'}}>
+      <Bar/>
     </View>
   );
 }
