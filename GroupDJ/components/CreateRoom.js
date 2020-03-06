@@ -30,19 +30,19 @@ export default class CreateRoom extends Component {
           {({ handleChange, handleBlur, handleSubmit, values }) => (
             <View style={styles.container}>
               <TextInput
-                style={{ height: 40, borderColor: 'gray', borderWidth: 1, color: 'black', backgroundColor: 'white', margin: "2%" }}
+                style={styles.textInput}
                 onChangeText={handleChange('name')}
                 onBlur={handleBlur('name')}
                 value={values.name}
                 autoFocus={true}
               />
               <TextInput
-                style={{ height: 40, borderColor: 'gray', borderWidth: 1, color: 'black', backgroundColor: 'white', margin: "2%" }}
+                style={styles.textInput}
                 onChangeText={handleChange('password')}
                 onBlur={handleBlur('password')}
                 value={values.password}
               />
-              <Button onPress={handleSubmit} title="Submit" />
+              <Button style={styles.button} onPress={handleSubmit} title="Submit" />
             </View>
           )}
         </Formik>
@@ -60,6 +60,18 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: '#000',
+  },
+  textInput:{
+     alignItems: 'center',
+      backgroundColor: '#333',
+      borderRadius: 10,
+      color: '#86939e',
+      fontSize: 20,
+      flexDirection: 'row',
+      height: 43,
+      margin: 8,
+      marginVertical: 10,
+      paddingHorizontal: 10
   },
   button: {
     backgroundColor: '#2FD566',
