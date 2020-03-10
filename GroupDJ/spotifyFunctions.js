@@ -47,3 +47,23 @@ export const GetInfo = function GetInfo() {
   );
   console.log(this.state.token);
 }
+
+export const PlaySong = function PlaySong(song) {
+  console.log(song);
+  var device_id = findDevices();
+  var options = '{"device_id":"'+device_id+'", "uris":["spotify:track:' + song +  '"]}'
+  var obj = JSON.parse(options);
+  SpotifyWebApi.play(obj)
+  .then((response) => {
+    console.log(response);
+  })
+  // this.songTimer = setInterval(() => {
+  //   this.nextSong()}, 3000);
+}
+
+const findDevices = function findDevices() {
+  SpotifyWebApi.getMyDevices()
+  .then((response) => {
+    return response.body.devices[0].id;
+  })
+}
