@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { GetInfo, SwitchFunc } from '../spotifyFunctions.js'
-import { TouchableOpacity, StyleSheet, Text, View, Button, ScrollView } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, View, Button, ScrollView, Image } from 'react-native';
 import styles from '../style.js'
 import { SpotifyWebApi } from './Home.js'
 
@@ -39,6 +39,7 @@ getNowPlaying() {
     if(data.body != null)
     {
       this.setState({
+        artwork: data.body.item.album.images[0].url,
         is_playing: data.body.is_playing,
         now_playing: data.body.item.name,
         artist: data.body.item.artists[0].name
@@ -47,6 +48,14 @@ getNowPlaying() {
   }, err => {
     console.log('Something went wrong!', err);
   });
+}
+
+findDevices() {
+  SpotifyWebApi.getMyDevices()
+  .then((response) => {
+    console.log(response.body.devices[0].id);
+    return response.body.devices;
+  })
 }
 
   render() {
@@ -58,6 +67,10 @@ getNowPlaying() {
             Current Track
 
           </Text>
+          <Image
+          style={{height: 100, width: 100}}
+          source={{uri: this.state.artwork}}
+          />
           <Text style={styles.userInfoText}>
             Song:
           </Text>
@@ -86,6 +99,14 @@ getNowPlaying() {
       >
         <Text style={styles.buttonText}>
           {this.state.playState}
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={this.findDevices}
+      >
+        <Text style={styles.buttonText}>
+          get Devices
         </Text>
       </TouchableOpacity>
       </View>
