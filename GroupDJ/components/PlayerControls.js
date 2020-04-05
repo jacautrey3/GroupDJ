@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { GetInfo, SwitchFunc } from '../spotifyFunctions.js'
+import { GetInfo, SwitchFunc, NextSong } from '../spotifyFunctions.js'
 import { TouchableOpacity, StyleSheet, Text, View, Button, ScrollView, Image } from 'react-native';
 import styles from '../style.js'
 import { SpotifyWebApi } from './Home.js'
@@ -18,6 +18,7 @@ export default class CreateRoom extends Component {
   };
   this.SwitchFunc = SwitchFunc.bind(this);
   this.GetInfo = GetInfo.bind(this);
+  this.NextSong = NextSong.bind(this);
 
   }
 
@@ -53,7 +54,7 @@ getNowPlaying() {
 findDevices() {
   SpotifyWebApi.getMyDevices()
   .then((response) => {
-    console.log(response.body.devices[0].id);
+    console.log(response.body.devices);
     return response.body.devices;
   })
 }
@@ -99,6 +100,14 @@ findDevices() {
       >
         <Text style={styles.buttonText}>
           {this.state.playState}
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={this.NextSong}
+      >
+        <Text style={styles.buttonText}>
+          Next
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
