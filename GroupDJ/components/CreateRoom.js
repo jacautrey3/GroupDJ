@@ -15,9 +15,10 @@ export default class CreateRoom extends Component {
 
   addRoom(data) {
     var token = SpotifyWebApi.getAccessToken();
-    var key = firebase.database().ref('/Rooms').push().key
-    firebase.database().ref('/Rooms').child(key).set({ name: data.name, password: data.password, token: token});
+    const key = firebase.database().ref('/Rooms').push().key
+    firebase.database().ref('/Rooms').child(key).set({ name: data.name, password: data.password, token: token, queue: []});
     this.props.navigation.navigate("TabScreen")
+    global.roomKey = key
   }
 
   render() {
