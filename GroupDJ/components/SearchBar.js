@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { TextInput, View, FlatList, StyleSheet, Text } from 'react-native';
+import { TextInput, View, FlatList, StyleSheet, Text, Image} from 'react-native';
 import { SearchBar, ListItem } from 'react-native-elements';
 import { SpotifyWebApi } from './Home.js'
 import SearchResults from './SearchResults.js'
+import { FontAwesome } from '@expo/vector-icons';
 
 export default function Bar() {
   const [searchSong, setSearchSong] = React.useState("");
@@ -43,8 +44,23 @@ export default function Bar() {
   const renderResults = () => {
     if(itemSelected){
       return(
-        <View>
-          <Text style={{color: 'white', justifyContent: 'center'}}> {itemSelected.name} </Text>
+        <View style={{flex: 1}}>
+          <View style={{alignItems: 'center', paddingBottom: 10}} >
+            { itemSelected.images[0] ?
+            <Image
+            style= {{width: 50, height: 50}}
+            resizeMode= 'contain'
+            source= { {uri: itemSelected.images[0].url} }
+            />
+            :
+            <FontAwesome
+              name="spotify"
+              color="#2FD566"
+              size={128}
+            />
+            }
+            <Text style={{color: 'white', fontWeight: 'bold', fontSize: 18}}> {itemSelected.name} </Text>
+          </View>
           <SearchResults
             itemSelected = {itemSelected}
           />
@@ -59,6 +75,7 @@ export default function Bar() {
   }
 
   const renderItem = ({ item, index }) => (
+    item.images[0] ?
     <ListItem
     containerStyle={{backgroundColor: '#333'}}
     titleStyle={{color: '#fff'}}
@@ -67,6 +84,15 @@ export default function Bar() {
     leftAvatar={{ source: { uri: item.images[0].url } }}
     bottomDivider
     />
+    :
+    <ListItem
+    containerStyle={{backgroundColor: '#333'}}
+    titleStyle={{color: '#fff'}}
+    button onPress={() => {handleSelection(item)}}
+    title={item.name}
+    bottomDivider
+    />
+
 )
 
   return (
@@ -88,7 +114,7 @@ export default function Bar() {
     extraData={this.state}
     />
     </View>
-    <View style={{position: 'relative', top:0, right:0, left:0, zIndex: 2}}>
+    <View style={{flex:1, position: 'relative', top:0, right:0, left:0, zIndex: 2}}>
       {renderResults()}
     </View>
     </View>
