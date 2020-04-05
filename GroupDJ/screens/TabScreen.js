@@ -4,6 +4,7 @@ import PlayerControls from '../components/PlayerControls.js'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import RoomOwnerScreen from '../screens/RoomOwnerScreen.js'
 import SearchScreen from '../screens/SearchScreen.js'
+import QueueScreen from '../screens/QueueScreen.js'
 
 const Tab = createBottomTabNavigator();
 
@@ -22,6 +23,7 @@ const TabScreen = ({ navigation }) => {
         },
       }}
       >
+        <Tab.Screen name="Queue" component={QueueScreen} />
         <Tab.Screen name="Now Playing" component={RoomOwnerScreen} />
         <Tab.Screen name="Search" component={SearchScreen} />
       </Tab.Navigator>
