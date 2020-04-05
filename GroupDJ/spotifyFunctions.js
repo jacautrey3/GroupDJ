@@ -1,4 +1,5 @@
 import { SpotifyWebApi } from './components/Home.js'
+var firebase = require("firebase");
 
 export const SwitchFunc = function SwitchFunc() {
   SpotifyWebApi.getMyCurrentPlaybackState({})
@@ -48,22 +49,115 @@ export const GetInfo = function GetInfo() {
   console.log(this.state.token);
 }
 
-export const PlaySong = function PlaySong(song) {
-  console.log(song);
-  var device_id = findDevices();
-  var options = '{"device_id":"'+device_id+'", "uris":["spotify:track:' + song +  '"]}'
+export const PlaySong = function PlaySong(song, devices) {
+  console.log(devices);
+  // let activeIndex = -1;
+  // for(let i = 0; i < devices.length; i++)
+  // {
+  //   console.log("index", i)
+  //   if(devices[i].is_active === true)
+  //   {
+  //     console.log("activeIndex", i)
+  //     activeIndex = i;
+  //   }
+  // }
+  var device = devices[0].id;
+  var isActive = false;
+    for(i = 0; i < devices.length; i++)
+    {
+      if(devices[i].is_active === true)
+      {
+        device = devices[i].id;
+        console.log("active device ", devices[i].id)
+        isActive = true;
+      }
+    }
+    if(!isActive)
+    {
+      setActiveDevice(device);
+    }
+  var options = '{"device_id":"'+device+'", "uris":["spotify:track:' + song +  '"]}'
   var obj = JSON.parse(options);
   SpotifyWebApi.play(obj)
   .then((response) => {
     console.log(response);
+  },
+  function(err) {
+    console.log("play error", err);
   })
   // this.songTimer = setInterval(() => {
   //   this.nextSong()}, 3000);
 }
 
-const findDevices = function findDevices() {
-  SpotifyWebApi.getMyDevices()
-  .then((response) => {
-    return response.body.devices[0].id;
+export const NextSong = function NextSong() {
+  // get cur song id
+  console.log('next function')
+  var roomKey = global.roomKey;
+  var nextId;
+  var ref = firebase.database().ref('/Rooms/'+roomKey+"/queue")
+  ref.orderByKey().limitToFirst(1).once('value', function(snapshot) {
+    snapshot.forEach(function(childSnap) {
+    console.log("cur song id", childSnap.val().id)
+    nextId = childSnap.val();
+    //remove current song
+    firebase.database().ref('/Rooms/'+roomKey+"/queue/"+childSnap.key).remove();
   })
+    //get next song id
+    ref.orderByKey().limitToFirst(1).once('value', function(snapshot) {
+      snapshot.forEach(function(childSnap) {
+      console.log("next song", childSnap.val().id)
+      nextId = childSnap.val().id;
+        // play next song
+        var devices = [];
+        SpotifyWebApi.getMyDevices()
+        .then(response => {
+          // console.log(response);
+          devices = response.body.devices;
+          PlaySong(nextId, response.body.devices);
+        }, err => {
+          console.log("getmydevice error", err);
+        }
+        );
+      })
+    })
+  })
+}
+
+export const GetTrackInfo = function(trackID) {
+  SpotifyWebApi.getTrack(trackID)
+  .then(response => {
+    // console.log("response from getrackinfo ",response.body)
+    this.setState({
+      queueData: response.body
+    })
+  }, err => {
+    console.log("GETTRACK ERROR", err)
+  })
+}
+
+const setActiveDevice = function setActiveDevice(id) {
+  //convert var id to JSON array
+  var deviceIds = [id];
+  var options = {"deviceIds": [id]};
+  // console.log(options);
+  //call to API
+  SpotifyWebApi.transferMyPlayback(options)
+  .then((response) => {
+    // console.log(response);
+  })
+
+}
+
+export const findDevices = function findDevices() {
+  SpotifyWebApi.getMyDevices()
+  .then(response => {
+      console.log(response);
+      this.setState({
+        devices: response.body.devices
+      })
+    return response.body.devices;
+  }, err => {
+    console.log("getmydevice error", err);
+  }
+  );
 }
