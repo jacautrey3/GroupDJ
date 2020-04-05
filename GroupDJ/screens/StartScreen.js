@@ -1,10 +1,11 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, Text, View, Button } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, View, Button, StatusBar } from 'react-native';
 import styles from '../style.js'
 
 const StartScreen = ({ navigation }) => {
   return(
     <View style={styles.container}>
+    <StatusBar barStyle={'light-content'}/>
       <TouchableOpacity
         style={styles.button}
         onPress={()=>navigation.navigate("HomeScreen")}
