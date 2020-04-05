@@ -25,20 +25,26 @@ export default class CreateRoom extends Component {
 componentDidMount() {
   this.getNowPlaying();
   this.myInterval = setInterval(() => {
-  this.getNowPlaying()}, 1000);
+  this.getNowPlaying()}, 2000);
 }
 
 componentWillUnmount() {
   clearInterval(this.myInterval);
 }
 
+
 getNowPlaying() {
-  SpotifyWebApi.getMyCurrentPlaybackState({
-  })
+  let timeLeft;
+  SpotifyWebApi.getMyCurrentPlaybackState({})
   .then(data => {
-    // console.log("Now Playing: ",data.body.item);
     if(data.body != null)
     {
+      console.log("duration: ", data.body.item.duration_ms - data.body.progress_ms);
+      if(data.body.item.duration_ms - data.body.progress_ms < 3000)
+      {
+        console.log("play next song")
+        this.NextSong();
+      }
       this.setState({
         artwork: data.body.item.album.images[0].url,
         is_playing: data.body.is_playing,
@@ -50,6 +56,7 @@ getNowPlaying() {
     console.log('Something went wrong!', err);
   });
 }
+
 
 findDevices() {
   SpotifyWebApi.getMyDevices()
