@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, TextInput, View, StyleSheet } from 'react-native';
+import { Button, TextInput, View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { Formik } from 'formik';
 var firebase = require("firebase");
 import { SpotifyWebApi } from './Home.js'
@@ -23,30 +23,37 @@ export default class CreateRoom extends Component {
 
   render() {
     return(
-      <View style={styles.form}>
-      <Formik
-          initialValues={{ name: '', password: '' }}
-          onSubmit={values => this.addRoom(values)}
-        >
-          {({ handleChange, handleBlur, handleSubmit, values }) => (
-            <View style={styles.container}>
-              <TextInput
-                style={styles.textInput}
-                onChangeText={handleChange('name')}
-                onBlur={handleBlur('name')}
-                value={values.name}
-                autoFocus={true}
-              />
-              <TextInput
-                style={styles.textInput}
-                onChangeText={handleChange('password')}
-                onBlur={handleBlur('password')}
-                value={values.password}
-              />
-              <Button style={styles.button} onPress={handleSubmit} title="Submit" />
-            </View>
-          )}
-        </Formik>
+      <View style={{flex: 1, backgroundColor: 'black'}}>
+      <KeyboardAvoidingView
+      behavior={Platform.Os == "ios" ? "padding" : "height"}
+      style={styles.form}>
+        <Formik
+            initialValues={{ name: '', password: '' }}
+            onSubmit={values => this.addRoom(values)}
+          >
+            {({ handleChange, handleBlur, handleSubmit, values }) => (
+              <View style={styles.container}>
+                <TextInput
+                  style={styles.textInput}
+                  onChangeText={handleChange('name')}
+                  onBlur={handleBlur('name')}
+                  value={values.name}
+                  autoFocus={true}
+                />
+                <TextInput
+                  style={styles.textInput}
+                  onChangeText={handleChange('password')}
+                  onBlur={handleBlur('password')}
+                  value={values.password}
+                />
+                <Button
+                color='#fff'
+                onPress={handleSubmit}
+                title="Submit" />
+              </View>
+            )}
+          </Formik>
+        </KeyboardAvoidingView>
         </View>
     );
   }
@@ -75,7 +82,7 @@ const styles = StyleSheet.create({
       paddingHorizontal: 10
   },
   button: {
-    backgroundColor: '#2FD566',
+    backgroundColor: '#fff',
     padding: 20
   },
   buttonText: {
