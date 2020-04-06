@@ -31,7 +31,7 @@ export default class App extends Component {
   render() {
     return (
       <NavigationContainer>
-      <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName="StartScreen">
+      <Stack.Navigator screenOptions={{headerShown: false, gestureEnabled: false}} initialRouteName="StartScreen">
         <Stack.Screen name="StartScreen" component={StartScreen}/>
         <Stack.Screen name="HomeScreen" component={HomeScreen}/>
         <Stack.Screen name="CreateRoomScreen" component={CreateRoomScreen}/>
