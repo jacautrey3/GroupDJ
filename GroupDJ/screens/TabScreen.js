@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import RoomOwnerScreen from '../screens/RoomOwnerScreen.js'
 import SearchScreen from '../screens/SearchScreen.js'
 import QueueScreen from '../screens/QueueScreen.js'
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const Tab = createBottomTabNavigator();
 
@@ -18,14 +19,42 @@ const TabScreen = ({ navigation }) => {
         activeTintColor: '#fff',
         inactiveTintColor: '#888',
         inactiveBackgroundColor: '#222',
+        showIcon: true,
         style: {
           backgroundColor: '#222'
         },
       }}
       >
-        <Tab.Screen name="Queue" component={QueueScreen} />
-        <Tab.Screen name="Now Playing" component={RoomOwnerScreen} />
-        <Tab.Screen name="Search" component={SearchScreen} />
+        <Tab.Screen
+          name="Queue"
+          component={QueueScreen}
+          options={{
+            tabBarLabel: 'Queue',
+            tabBarIcon: ({ focused, tintColor }) => (
+              <Icon name="list" size={25} color={focused ? '#fff' : '#888'}/>
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Now Playing"
+          component={RoomOwnerScreen}
+          options={{
+            tabBarLabel: 'Now Playing',
+            tabBarIcon: ({ focused, tintColor }) => (
+              <Icon name="home" size={25} color={focused ? '#fff' : '#888'}/>
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Search"
+          component={SearchScreen}
+          options={{
+            tabBarLabel: 'Search',
+            tabBarIcon: ({ focused, tintColor }) => (
+              <Icon name="search" size={25} color={focused ? '#fff' : '#888'} />
+            ),
+          }}
+        />
       </Tab.Navigator>
     </View>
   );
