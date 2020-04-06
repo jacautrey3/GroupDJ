@@ -5,7 +5,7 @@ import styles from '../style.js'
 const StartScreen = ({ navigation }) => {
   return(
     <View style={styles.container}>
-    <StatusBar barStyle={'light-content'}/>
+    <StatusBar barStyle={'light-content'} translucent={true}/>
       <TouchableOpacity
         style={styles.button}
         onPress={()=>navigation.navigate("HomeScreen")}
