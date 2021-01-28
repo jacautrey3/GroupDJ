@@ -4,7 +4,7 @@ import { SearchBar, ListItem } from 'react-native-elements';
 import { SpotifyWebApi } from './SpotifyAuth.js'
 import { PlaySong, findDevices, GetSong } from '../spotifyFunctions.js'
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 var firebase = require("firebase");
 
@@ -118,130 +118,130 @@ export default class SearchResults extends Component {
       }}
       title={item.name}
       leftAvatar={{ source: { uri: item.album.images[0].url }, size: 30, rounded: false }}
-      rightElement=<MaterialIcons name="playlist-add" size={25} color="#aaa" />
-    bottomDivider
+      rightElement={<MaterialIcons name="playlist-add" size={25} color="#aaa" />}
+      bottomDivider
     />
-)
+  )
 
-renderTopTracks(value) {
-  // console.log("LOGGING THE DATA", item);
-  return (
-    <View style={{ flex: 1, width: '100%' }}>
-      <Text style={{ color: '#fff', fontSize: 20, fontWeight: 'bold', paddingBottom: 10 }}>Top Songs</Text>
-      <FlatList
-        contentContainerStyle={{ flex: 1 }}
-        style={{ flex: 1, width: '100%' }}
-        data={this.state.results}
-        keyExtractor={item => item.id}
-        renderItem={this.renderItem}
-        extraData={this.state}
-      />
-    </View>
-  );
-}
-
-renderAlbumTracks(value) {
-  // console.log("LOGGING THE DATA \n", value);
-  // console.log("this.state.album \n", this.state.album);
-  return (
-    <View style={{ flex: 1, width: '100%' }}>
-
-      <FlatList
-        contentContainerStyle={{ flex: 1 }}
-        style={{ flex: 1, width: '100%' }}
-        data={this.state.albumTracks}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <ListItem
-            containerStyle={{ backgroundColor: '#333' }}
-            titleStyle={{ color: '#fff' }}
-            avatarStyle={{ padding: 0 }}
-            button onPress={() => {
-              Haptics.selectionAsync()
-              GetSong(item.id)
-            }}
-            title={item.name}
-            rightElement=<MaterialIcons name="playlist-add" size={25} color="#aaa" />
-          bottomDivider
-      />
-        )}
-        extraData={this.state}
+  renderTopTracks(value) {
+    // console.log("LOGGING THE DATA", item);
+    return (
+      <View style={{ flex: 1, width: '100%' }}>
+        <Text style={{ color: '#fff', fontSize: 20, fontWeight: 'bold', paddingBottom: 10 }}>Top Songs</Text>
+        <FlatList
+          contentContainerStyle={{ flex: 1 }}
+          style={{ flex: 1, width: '100%' }}
+          data={this.state.results}
+          keyExtractor={item => item.id}
+          renderItem={this.renderItem}
+          extraData={this.state}
         />
-    </View>
-  );
-}
-
-
-renderAlbums(value) {
-  return (
-    <View style={{ flex: 1, width: '100%', }}>
-      <View style={{ alignItems: 'center' }}>
-        <Text style={{ color: '#fff', fontSize: 20, fontWeight: 'bold', paddingTop: 30, paddingBottom: 15 }}>Albums</Text>
       </View>
-      <FlatList
-        data={this.state.artistAlbums}
-        renderItem={({ item }) => (
-          <View style={{ flex: 1, flexDirection: 'column', margin: 1, padding: 10, alignItems: 'center', justifyContent: 'center' }} >
-            <TouchableOpacity onPress={() => { this.suggestionSelected(item, item.type) }}>
-              <Image style={styles.imageThumbnail} source={{ uri: item.images[0].url }} />
-            </TouchableOpacity>
-            <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>{item.name}</Text>
+    );
+  }
+
+  renderAlbumTracks(value) {
+    // console.log("LOGGING THE DATA \n", value);
+    // console.log("this.state.album \n", this.state.album);
+    return (
+      <View style={{ flex: 1, width: '100%' }}>
+
+        <FlatList
+          contentContainerStyle={{ flex: 1 }}
+          style={{ flex: 1, width: '100%' }}
+          data={this.state.albumTracks}
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => (
+            <ListItem
+              containerStyle={{ backgroundColor: '#333' }}
+              titleStyle={{ color: '#fff' }}
+              avatarStyle={{ padding: 0 }}
+              button onPress={() => {
+                Haptics.selectionAsync()
+                GetSong(item.id)
+              }}
+              title={item.name}
+              rightElement={<MaterialIcons name="playlist-add" size={25} color="#aaa" />}
+              bottomDivider
+            />
+          )}
+          extraData={this.state}
+        />
+      </View>
+    );
+  }
+
+
+  renderAlbums(value) {
+    return (
+      <View style={{ flex: 1, width: '100%', }}>
+        <View style={{ alignItems: 'center' }}>
+          <Text style={{ color: '#fff', fontSize: 20, fontWeight: 'bold', paddingTop: 30, paddingBottom: 15 }}>Albums</Text>
+        </View>
+        <FlatList
+          data={this.state.artistAlbums}
+          renderItem={({ item }) => (
+            <View style={{ flex: 1, flexDirection: 'column', margin: 1, padding: 10, alignItems: 'center', justifyContent: 'center' }} >
+              <TouchableOpacity onPress={() => { this.suggestionSelected(item, item.type) }}>
+                <Image style={styles.imageThumbnail} source={{ uri: item.images[0].url }} />
+              </TouchableOpacity>
+              <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>{item.name}</Text>
+            </View>
+          )}
+          numColumns={2}
+          keyExtractor={item => item.id}
+          extraData={this.state}
+        />
+      </View>
+    );
+  }
+
+
+  render() {
+    if (this.state.selected == "artist") {
+      return (
+        <View style={{ flex: 1, width: '100%' }}>
+          <View style={{ alignItems: 'center', paddingBottom: 10 }} >
+            {this.props.itemSelected.images[0] ?
+              <Image
+                style={{ width: 150, height: 150 }}
+                resizeMode='contain'
+                source={{ uri: this.props.itemSelected.images[0].url }}
+              />
+              :
+              <MaterialIcons
+                name='error-outline'
+              />
+            }
+            <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 25 }}> {this.props.itemSelected.name} </Text>
           </View>
-        )}
-        numColumns={2}
-        keyExtractor={item => item.id}
-        extraData={this.state}
-      />
-    </View>
-  );
-}
-
-
-render() {
-  if (this.state.selected == "artist") {
-    return (
-      <View style={{ flex: 1, width: '100%' }}>
-        <View style={{ alignItems: 'center', paddingBottom: 10 }} >
-          {this.props.itemSelected.images[0] ?
-            <Image
-              style={{ width: 150, height: 150 }}
-              resizeMode='contain'
-              source={{ uri: this.props.itemSelected.images[0].url }}
-            />
-            :
-            <MaterialIcons
-              name='error-outline'
-            />
-          }
-          <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 25 }}> {this.props.itemSelected.name} </Text>
+          {this.renderTopTracks(this.props.itemSelected)}
+          {this.renderAlbums(this.props.itemSelected)}
         </View>
-        {this.renderTopTracks(this.props.itemSelected)}
-        {this.renderAlbums(this.props.itemSelected)}
-      </View>
-    );
-  }
-  else {
-    return (
-      <View style={{ flex: 1, width: '100%' }}>
-        <View style={{ alignItems: 'center', paddingBottom: 10 }} >
-          {this.props.itemSelected.images[0] ?
-            <Image
-              style={{ width: 150, height: 150 }}
-              resizeMode='contain'
-              source={{ uri: this.props.itemSelected.images[0].url }}
-            />
-            :
-            <MaterialIcons
-              name='error-outline'
-            />
-          }
-          <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 25 }}> {this.props.itemSelected.name} </Text>
+      );
+    }
+    else {
+      return (
+        <View style={{ flex: 1, width: '100%' }}>
+          <View style={{ alignItems: 'center', paddingBottom: 10 }} >
+            {this.props.itemSelected.images[0] ?
+              <Image
+                style={{ width: 150, height: 150 }}
+                resizeMode='contain'
+                source={{ uri: this.props.itemSelected.images[0].url }}
+              />
+              :
+              <MaterialIcons
+                name='error-outline'
+              />
+            }
+            <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 25 }}> {this.props.itemSelected.name} </Text>
+          </View>
+          {this.renderAlbumTracks(this.props.itemSelected)}
         </View>
-        {this.renderAlbumTracks(this.props.itemSelected)}
-      </View>
-    );
+      );
+    }
   }
-}
 }
 
 const styles = StyleSheet.create({

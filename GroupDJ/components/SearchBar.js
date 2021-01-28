@@ -3,8 +3,8 @@ import { TextInput, View, FlatList, StyleSheet, Text, Image, Platform, ScrollVie
 import { SearchBar, ListItem } from 'react-native-elements';
 import { SpotifyWebApi } from './SpotifyAuth.js'
 import SearchResults from './SearchResults.js'
-import { FontAwesome } from '@expo/vector-icons';
-import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+// import { FontAwesome } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 var firebase = require("firebase");
 
@@ -100,93 +100,94 @@ export default function Bar() {
             }}
             title={item.name}
             leftAvatar={{ source: { uri: item.images[0].url } }}
-            rightElement=<MaterialCommunityIcons name="artist" size={25} color="#888" />
-          bottomDivider
+            rightElement={<MaterialIcons name="person" size={25} color="#888" />}
+            bottomDivider
           />
         );
-}
+      }
       else {
-  return (
-    <ListItem
-      containerStyle={{ backgroundColor: '#333' }}
-      titleStyle={{ color: '#fff' }}
-      button onPress={() => {
-        Haptics.selectionAsync()
-        handleSelection(item)
-      }}
-      title={item.name}
-      leftElement=<MaterialIcons name='error-outline' size={30} />
-          rightElement = <MaterialCommunityIcons name="artist" size={25} color="#888" />
-  bottomDivider
-    />
+        return (
+          <ListItem
+            containerStyle={{ backgroundColor: '#333' }}
+            titleStyle={{ color: '#fff' }}
+            button onPress={() => {
+              Haptics.selectionAsync()
+              handleSelection(item)
+            }}
+            title={item.name}
+            leftElement={<MaterialIcons name='error-outline' size={30} />}
+            rightElement={<MaterialIcons name="person" size={25} color="#888" />}
+            bottomDivider
+          />
         );
-}
+      }
     }
-    else
-{
-  if (item.album.images[0].url) {
-    return (
-      <ListItem
-        containerStyle={{ backgroundColor: '#333' }}
-        titleStyle={{ color: '#fff' }}
-        subtitleStyle={{ color: '#aaa' }}
-        button onPress={() => {
-          Haptics.selectionAsync()
-          clearSearch()
-          addToQueue(item)
-        }}
-        title={item.name}
-        subtitle={item.artists[0].name}
-        leftAvatar={{ source: { uri: item.album.images[0].url }, rounded: false }}
-        rightElement=<MaterialIcons name="music-note" size={25} color="#888" />
-          bottomDivider
-      />
+    //song
+    else {
+      if (item.album.images[0].url) {
+        return (
+          <ListItem
+            containerStyle={{ backgroundColor: '#333' }}
+            titleStyle={{ color: '#fff' }}
+            subtitleStyle={{ color: '#aaa' }}
+            button onPress={() => {
+              Haptics.selectionAsync()
+              clearSearch()
+              addToQueue(item)
+            }}
+            title={item.name}
+            subtitle={item.artists[0].name}
+            leftAvatar={{ source: { uri: item.album.images[0].url }, rounded: false }}
+            rightElement={<MaterialIcons name="music-note" size={25} color="#888" />}
+            bottomDivider
+          />
         );
-  }
-  else {
-    return (
-      <ListItem
-        containerStyle={{ backgroundColor: '#333' }}
-        titleStyle={{ color: '#fff' }}
-        button onPress={() => {
-          Haptics.selectionAsync()
-          clearSearch()
-          addToQueue(item)
-        }}
-        title={item.name}
-        leftElement=<MaterialIcons name='error-outline' />
-          rightElement = <MaterialIcons name="music-note" size={25} color="#888" />
-    bottomDivider
-      />
+      }
+      //song without album artwork
+      else {
+        return (
+          <ListItem
+            containerStyle={{ backgroundColor: '#333' }}
+            titleStyle={{ color: '#fff' }}
+            button onPress={() => {
+              Haptics.selectionAsync()
+              clearSearch()
+              addToQueue(item)
+            }}
+            title={item.name}
+            leftElement={<MaterialIcons name='error-outline' />}
+            rightElement={<MaterialIcons name="music-note" size={25} color="#888" />}
+            bottomDivider
+          />
         );
+      }
+    }
   }
-}
-}
 
-return (
-  <View style={styles.container}>
-    <View style={{ zIndex: 3 }}>
-      <SearchBar
-        value={searchSong}
-        onChangeText={songSearch}
-        onClear={clearSearch}
-        placeholder="Search"
-        round={true}
-        inputContainerStyle={styles.textInput}
-        containerStyle={{ backgroundColor: '#000', borderWidth: 0 }}
-      />
-      <FlatList style={styles.autocompleteContainer}
-        data={newSongs}
-        keyExtractor={item => item.id}
-        renderItem={renderItem}
-        extraData={this.state}
-      />
+  return (
+    <View style={styles.container}>
+      <View style={{ zIndex: 3 }}>
+        <SearchBar
+          value={searchSong}
+          onChangeText={songSearch}
+          onClear={clearSearch}
+          placeholder="Search"
+          round={true}
+          inputContainerStyle={styles.textInput}
+          containerStyle={{ backgroundColor: '#000', borderWidth: 0 }}
+        />
+        <FlatList style={styles.autocompleteContainer}
+          data={newSongs}
+          keyExtractor={item => item.id}
+          renderItem={renderItem}
+          extraData={this.state}
+        />
+      </View>
+      <View style={{ flex: 1, position: 'relative', top: 0, right: 0, left: 0, zIndex: 2 }}>
+        {renderResults()}
+      </View>
     </View>
-    <View style={{ flex: 1, position: 'relative', top: 0, right: 0, left: 0, zIndex: 2 }}>
-      {renderResults()}
-    </View>
-  </View>
-);
+  );
 }
 
 const marginTop = Platform.OS === 'ios' ? 20 : 0;
