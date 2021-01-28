@@ -36,15 +36,10 @@ export default class CreateRoom extends Component {
 
 
   getNowPlaying() {
-    let timeLeft;
     SpotifyWebApi.getMyCurrentPlaybackState({})
       .then(data => {
         if (data.body != null) {
-          console.log("duration: ", data.body.item.duration_ms - data.body.progress_ms);
-          if (data.body.item.duration_ms - data.body.progress_ms < 1500) {
-            // console.log("play next song")
-            this.NextSong();
-          }
+          // console.log("duration: ", data.body.item.duration_ms - data.body.progress_ms);
           this.setState({
             artwork: data.body.item.album.images[0].url,
             is_playing: data.body.is_playing,

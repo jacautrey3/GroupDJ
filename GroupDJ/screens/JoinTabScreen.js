@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import PlayerControls from '../components/PlayerControls.js'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import NowPlayingOwnerScreen from '../screens/NowPlayingOwnerScreen.js'
+import NowPlayingScreen from '../screens/NowPlayingScreen.js'
 import SearchScreen from '../screens/SearchScreen.js'
 import QueueScreen from '../screens/QueueScreen.js'
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -37,7 +37,7 @@ const TabScreen = ({ navigation }) => {
         />
         <Tab.Screen
           name="Now Playing"
-          component={NowPlayingOwnerScreen}
+          component={NowPlayingScreen}
           options={{
             tabBarLabel: 'Now Playing',
             tabBarIcon: ({ focused, tintColor }) => (

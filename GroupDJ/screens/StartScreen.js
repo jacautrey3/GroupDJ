@@ -6,6 +6,9 @@ const StartScreen = ({ navigation }) => {
   return(
     <View style={styles.container}>
     <StatusBar barStyle={'light-content'} translucent={true}/>
+    <Text style={{color: '#2FD566', fontSize: 75, fontWeight: 'bold'}}>
+    Group DJ
+    </Text>
       <TouchableOpacity
         style={styles.button}
         onPress={()=>navigation.navigate("HomeScreen")}

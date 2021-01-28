@@ -5,10 +5,12 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import HomeScreen from './screens/HomeScreen.js'
 import StartScreen from './screens/StartScreen.js'
 import CreateRoomScreen from './screens/CreateRoomScreen.js'
+import SwitchUserScreen from './screens/SwitchUserScreen.js'
 import TabScreen from './screens/TabScreen.js'
-import RoomScreen from './screens/RoomScreen.js'
+import JoinTabScreen from './screens/JoinTabScreen.js'
 import JoinRoomScreen from './screens/JoinRoomScreen.js'
 import firebase from 'firebase';
+// console.disableYellowBox = true;
 
 const firebaseConfig = {
   apiKey: "AIzaSyDBJYmHz39zi3ekY4ZT2LdMQ8p0UXm0rqI",
@@ -35,9 +37,10 @@ export default class App extends Component {
         <Stack.Screen name="StartScreen" component={StartScreen}/>
         <Stack.Screen name="HomeScreen" component={HomeScreen}/>
         <Stack.Screen name="CreateRoomScreen" component={CreateRoomScreen}/>
+        <Stack.Screen name="SwitchUserScreen" component={SwitchUserScreen}/>
         <Stack.Screen name="TabScreen" component={TabScreen}/>
+        <Stack.Screen name="JoinTabScreen" component={JoinTabScreen}/>
         <Stack.Screen name="JoinRoomScreen" component={JoinRoomScreen}/>
-        <Stack.Screen name="RoomScreen" component={RoomScreen}/>
       </Stack.Navigator>
       </NavigationContainer>
     );

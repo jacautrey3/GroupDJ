@@ -2,20 +2,20 @@ import React, { Component } from 'react';
 import { Button, TextInput, View, StyleSheet } from 'react-native';
 import { Formik } from 'formik';
 var firebase = require("firebase");
-import { SpotifyWebApi } from './Home.js'
+import { SpotifyWebApi } from './SpotifyAuth.js'
 
 export default class Search extends Component {
   constructor() {
     super();
-  this.state = {
-    access_token: 'not changed'
-  };
+    this.state = {
+      access_token: 'not changed'
+    };
 
-}
+  }
 
 
   render() {
-    return(
+    return (
       <View style={styles.form}>
 
       </View>

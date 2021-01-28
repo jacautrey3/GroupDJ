@@ -1,22 +1,30 @@
 import React, { Component } from 'react';
-import { TextInput, View, FlatList, StyleSheet, Text } from 'react-native';
+import { TextInput, View, FlatList, StyleSheet, Text, Image, List } from 'react-native';
 import { SearchBar, ListItem } from 'react-native-elements';
-import { SpotifyWebApi } from './Home.js'
-import { PlaySong, findDevices } from '../spotifyFunctions.js'
+import { SpotifyWebApi } from './SpotifyAuth.js'
+import { PlaySong, findDevices, GetSong } from '../spotifyFunctions.js'
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 var firebase = require("firebase");
 
 export default class SearchResults extends Component {
   constructor(props) {
     super(props);
-  this.state = {
-    results: null,
-    devices: []
-  };
-  this.findDevices = findDevices.bind(this);
-}
+    this.state = {
+      results: null,
+      devices: [],
+      artistAlbums: null,
+      albumTracks: null,
+      album: null,
+      selected: null
+    };
+    this.findDevices = findDevices.bind(this);
+    this.GetSong = GetSong.bind(this);
+  }
 
   componentDidUpdate(prevProps) {
-    if(this.props.itemSelected !== prevProps.itemSelected) {
+    if (this.props.itemSelected !== prevProps.itemSelected) {
       this.suggestionSelected(this.props.itemSelected, this.props.itemSelected.type)
     }
   }
@@ -28,80 +36,212 @@ export default class SearchResults extends Component {
 
   addToQueue(item) {
     var roomKey = global.roomKey;
-    var key = firebase.database().ref('/Rooms/'+roomKey+"/queue").push(item);
+    var repeat = false;
+    var ref = firebase.database().ref('/Rooms/' + roomKey + "/queue")
+    ref.once('value', function (snapshot) {
+      snapshot.forEach(function (childSnap) {
+        //if song already in queue
+        if (childSnap.val().id == item.id) {
+          console.log("already in Queue\n")
+          repeat = true;
+        }
+      })
+    })
+    if (!repeat) {
+      firebase.database().ref('/Rooms/' + roomKey + "/queue").push(item);
+    }
   }
 
-  suggestionSelected (value, type) {
-    console.log(value);
-    if(type === 'artist') {
+  suggestionSelected(value, type) {
+    console.log("value \n", value);
+    // console.log("type ", type);
+    if (type === 'artist') {
+      this.setState({
+        selected: 'artist'
+      })
       this.getArtist(value);
+      this.getArtistAlbums(value);
     }
-    else if(type === 'track') {
-      this.getSong(value);
+    else if (type === 'track') {
+      this.addToQueue(value);
     }
-    else if(type === 'album') {
+    else if (type === 'album') {
+      this.setState({
+        selected: 'album',
+        album: value
+      })
       this.getAlbum(value);
     }
   }
 
   getArtist(item) {
     SpotifyWebApi.getArtistTopTracks(item.id, 'US')
-    .then((response) => {
-      console.log(response.body.tracks);
-      this.setState({
-        results: response.body.tracks
+      .then((response) => {
+        // console.log(response.body.tracks);
+        this.setState({
+          results: response.body.tracks
+        })
       })
-    })
   }
 
   getArtistAlbums(item) {
     SpotifyWebApi.getArtistAlbums(item.id)
-    .then((response) => {
-      console.log(response);
-      this.setState({
-        artistAlbums: response.items
+      .then((response) => {
+        // console.log("artist albums", response.body.items);
+        this.setState({
+          artistAlbums: response.body.items
+        })
       })
-    })
-    .then(() => this.getArtist(item))
+  }
+
+  getAlbum(item) {
+    console.log("Album Item \n", item);
+    SpotifyWebApi.getAlbumTracks(item.id)
+      .then((response) => {
+        // console.log(response.body.items);
+        this.setState({
+          albumTracks: response.body.items
+        })
+      })
   }
 
   renderItem = ({ item, index }) => (
     <ListItem
-    containerStyle={{backgroundColor: '#333'}}
-    titleStyle={{color: '#fff'}}
-    button onPress={() => {
-      this.addToQueue(item)
-      // PlaySong(item.id, this.state.devices)
-      console.log("RENDER ITEM", item)
-    }}
-    title={item.name}
+      containerStyle={{ backgroundColor: '#333' }}
+      titleStyle={{ color: '#fff' }}
+      avatarStyle={{ padding: 0 }}
+      button onPress={() => {
+        Haptics.selectionAsync()
+        this.addToQueue(item)
+        // PlaySong(item.id, this.state.devices)
+        // console.log("RENDER ITEM", item)
+      }}
+      title={item.name}
+      leftAvatar={{ source: { uri: item.album.images[0].url }, size: 30, rounded: false }}
+      rightElement=<MaterialIcons name="playlist-add" size={25} color="#aaa" />
     bottomDivider
     />
 )
 
-  renderTopTracks(item) {
-    console.log("LOGGING THE DATA", item);
-    return (
-      <View style={{flex:1, width: '100%'}}>
-        <FlatList
-        contentContainerStyle={{ flexGrow: 1 }}
-        style={{flex: 1, width: '100%'}}
+renderTopTracks(value) {
+  // console.log("LOGGING THE DATA", item);
+  return (
+    <View style={{ flex: 1, width: '100%' }}>
+      <Text style={{ color: '#fff', fontSize: 20, fontWeight: 'bold', paddingBottom: 10 }}>Top Songs</Text>
+      <FlatList
+        contentContainerStyle={{ flex: 1 }}
+        style={{ flex: 1, width: '100%' }}
         data={this.state.results}
         keyExtractor={item => item.id}
         renderItem={this.renderItem}
         extraData={this.state}
-        />
-      </View>
-    );
-  }
+      />
+    </View>
+  );
+}
 
-  render() {
+renderAlbumTracks(value) {
+  // console.log("LOGGING THE DATA \n", value);
+  // console.log("this.state.album \n", this.state.album);
+  return (
+    <View style={{ flex: 1, width: '100%' }}>
+
+      <FlatList
+        contentContainerStyle={{ flex: 1 }}
+        style={{ flex: 1, width: '100%' }}
+        data={this.state.albumTracks}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => (
+          <ListItem
+            containerStyle={{ backgroundColor: '#333' }}
+            titleStyle={{ color: '#fff' }}
+            avatarStyle={{ padding: 0 }}
+            button onPress={() => {
+              Haptics.selectionAsync()
+              GetSong(item.id)
+            }}
+            title={item.name}
+            rightElement=<MaterialIcons name="playlist-add" size={25} color="#aaa" />
+          bottomDivider
+      />
+        )}
+        extraData={this.state}
+        />
+    </View>
+  );
+}
+
+
+renderAlbums(value) {
+  return (
+    <View style={{ flex: 1, width: '100%', }}>
+      <View style={{ alignItems: 'center' }}>
+        <Text style={{ color: '#fff', fontSize: 20, fontWeight: 'bold', paddingTop: 30, paddingBottom: 15 }}>Albums</Text>
+      </View>
+      <FlatList
+        data={this.state.artistAlbums}
+        renderItem={({ item }) => (
+          <View style={{ flex: 1, flexDirection: 'column', margin: 1, padding: 10, alignItems: 'center', justifyContent: 'center' }} >
+            <TouchableOpacity onPress={() => { this.suggestionSelected(item, item.type) }}>
+              <Image style={styles.imageThumbnail} source={{ uri: item.images[0].url }} />
+            </TouchableOpacity>
+            <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>{item.name}</Text>
+          </View>
+        )}
+        numColumns={2}
+        keyExtractor={item => item.id}
+        extraData={this.state}
+      />
+    </View>
+  );
+}
+
+
+render() {
+  if (this.state.selected == "artist") {
     return (
-      <View style={{flex:1, width: '100%'}}>
+      <View style={{ flex: 1, width: '100%' }}>
+        <View style={{ alignItems: 'center', paddingBottom: 10 }} >
+          {this.props.itemSelected.images[0] ?
+            <Image
+              style={{ width: 150, height: 150 }}
+              resizeMode='contain'
+              source={{ uri: this.props.itemSelected.images[0].url }}
+            />
+            :
+            <MaterialIcons
+              name='error-outline'
+            />
+          }
+          <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 25 }}> {this.props.itemSelected.name} </Text>
+        </View>
         {this.renderTopTracks(this.props.itemSelected)}
+        {this.renderAlbums(this.props.itemSelected)}
       </View>
     );
   }
+  else {
+    return (
+      <View style={{ flex: 1, width: '100%' }}>
+        <View style={{ alignItems: 'center', paddingBottom: 10 }} >
+          {this.props.itemSelected.images[0] ?
+            <Image
+              style={{ width: 150, height: 150 }}
+              resizeMode='contain'
+              source={{ uri: this.props.itemSelected.images[0].url }}
+            />
+            :
+            <MaterialIcons
+              name='error-outline'
+            />
+          }
+          <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 25 }}> {this.props.itemSelected.name} </Text>
+        </View>
+        {this.renderAlbumTracks(this.props.itemSelected)}
+      </View>
+    );
+  }
+}
 }
 
 const styles = StyleSheet.create({
@@ -115,15 +255,19 @@ const styles = StyleSheet.create({
     marginLeft: 0,
     marginRight: 0
   },
-  textInput:{
-     alignItems: 'center',
-        backgroundColor: '#000',
-        borderRadius: 10,
+  textInput: {
+    alignItems: 'center',
+    backgroundColor: '#000',
+    borderRadius: 10,
 
-        flexDirection: 'row',
-        height: 43,
-        margin: 8,
-        marginVertical: 10,
-        paddingHorizontal: 10
+    flexDirection: 'row',
+    height: 43,
+    margin: 8,
+    marginVertical: 10,
+    paddingHorizontal: 10
   },
+  imageThumbnail: {
+    height: 150,
+    width: 150
+  }
 })

@@ -2,38 +2,42 @@ import React, { Component } from 'react';
 import { Button, TextInput, View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { Formik } from 'formik';
 var firebase = require("firebase");
-import { SpotifyWebApi } from './Home.js'
+import { SpotifyWebApi } from './SpotifyAuth.js'
 
 export default class JoinRoom extends Component {
   constructor() {
     super();
-  this.state = {
-    access_token: 'not changed'
-  };
+    this.state = {
+      access_token: 'not changed'
+    };
 
-}
+  }
+
+  SetToken() {
+    var ref = firebase.database().ref('/Rooms/' + roomKey + "/token")
+    ref.on('value', function (snapshot) {
+      console.log("New Token \n", snapshot.val());
+      SpotifyWebApi.setAccessToken(snapshot.val())
+    })
+  }
 
   GetDatabaseToken(data) {
-    firebase.database().ref('/Rooms').once('value', function(snapshot) {
+    firebase.database().ref('/Rooms').once('value', function (snapshot) {
       snapshot.forEach(childSnap => {
-        if(childSnap.val().name === data.name)
-        {
-          if(childSnap.val().password === data.password)
-          {
-            console.log(childSnap.val().token);
+        if (childSnap.val().name === data.name) {
+          if (childSnap.val().password === data.password) {
+
             global.roomKey = childSnap.key
             console.log(childSnap.key)
-            SpotifyWebApi.setAccessToken(childSnap.val().token)
-
-            this.props.navigation.navigate("TabScreen");
+            this.SetToken()
+            global.owner = false
+            this.props.navigation.navigate("JoinTabScreen");
           }
-          else
-          {
+          else {
             //wrong password
           }
         }
-        else
-        {
+        else {
           //room does not exist
         }
       })
@@ -41,11 +45,12 @@ export default class JoinRoom extends Component {
   }
 
   render() {
-    return(
-      <KeyboardAvoidingView
-      behavior={Platform.Os == "ios" ? "padding" : "height"}
-      style={styles.form}>
-        <Formik
+    return (
+      <View style={styles.form}>
+        <KeyboardAvoidingView
+          behavior={Platform.Os == "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}>
+          <Formik
             initialValues={{ name: '', password: '' }}
             onSubmit={values => this.GetDatabaseToken(values)}
           >
@@ -57,21 +62,26 @@ export default class JoinRoom extends Component {
                   onBlur={handleBlur('name')}
                   value={values.name}
                   autoFocus={true}
+                  placeholder="Room Name"
+                  placeholderTextColor="#666"
                 />
                 <TextInput
                   style={styles.textInput}
                   onChangeText={handleChange('password')}
                   onBlur={handleBlur('password')}
                   value={values.password}
+                  placeholder="Password"
+                  placeholderTextColor="#666"
                 />
                 <Button
-                color='#fff'
-                onPress={handleSubmit}
-                title="Submit" />
+                  color='#fff'
+                  onPress={handleSubmit}
+                  title="Submit" />
               </View>
             )}
           </Formik>
         </KeyboardAvoidingView>
+      </View>
     );
   }
 }
@@ -86,17 +96,17 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#000',
   },
-  textInput:{
-     alignItems: 'center',
-      backgroundColor: '#333',
-      borderRadius: 10,
-      color: '#86939e',
-      fontSize: 20,
-      flexDirection: 'row',
-      height: 43,
-      margin: 8,
-      marginVertical: 10,
-      paddingHorizontal: 10
+  textInput: {
+    alignItems: 'center',
+    backgroundColor: '#333',
+    borderRadius: 10,
+    color: '#bbb',
+    fontSize: 20,
+    flexDirection: 'row',
+    height: 43,
+    margin: 8,
+    marginVertical: 10,
+    paddingHorizontal: 10
   },
   button: {
     backgroundColor: '#fff',
