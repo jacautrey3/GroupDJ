@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { TouchableOpacity, StyleSheet, Text, View } from 'react-native';
+import { TouchableOpacity, Text, View } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri, useAuthRequest, ResponseType } from 'expo-auth-session';
-import { Button } from 'react-native';
 import styles from '../style.js'
 import Spotify from 'react-native-spotify-web-api';
+var firebase = require("firebase");
 
 export const SpotifyWebApi = new Spotify({
     clientId: '7cae269ba3be4c65b1cc891d0adae959',
@@ -21,8 +21,9 @@ const discovery = {
     tokenEndpoint: 'https://accounts.spotify.com/api/token',
 };
 
-export default function App({ navigation }) {
+export default function App({ navigation, switchAccount }) {
     const [userInfo, setUserInfo] = React.useState();
+    const [token, setToken] = React.useState("");
     const [request, response, promptAsync] = useAuthRequest(
         {
             responseType: ResponseType.Token,
@@ -40,10 +41,21 @@ export default function App({ navigation }) {
         discovery
     );
 
+    const setNewToken = () => {
+        console.log('SET NEW TOKEN')
+        var roomKey = global.roomKey;
+        var updates = {}
+        updates['/Rooms/' + roomKey + '/token/'] = token
+        firebase.database().ref().update(updates)
+        navigation.navigate("TabScreen")
+    }
+
     React.useEffect(() => {
         if (response?.type === 'success') {
             const { access_token } = response.params;
-            console.log(response.params.access_token);
+            console.log('ACCESS TOKEN ', response.params.access_token);
+            //put token in state
+            setToken(response.params.access_token)
             // this.setState({
             //     token: response.params.access_token,
             // });
@@ -52,7 +64,7 @@ export default function App({ navigation }) {
             console.log("success\n\n\n");
             SpotifyWebApi.getMe().then(
                 userInfo => {
-                    console.log(userInfo);
+                    console.log('USER INFO ', userInfo);
                     setUserInfo(userInfo.body)
                     return userInfo;
                 },
@@ -86,7 +98,9 @@ export default function App({ navigation }) {
                     </Text>
                     <TouchableOpacity
                         style={styles.button}
-                        onPress={() => navigation.navigate("CreateRoomScreen")}
+                        onPress={() => {
+                            switchAccount ? setNewToken() : navigation.navigate("CreateRoomScreen")
+                        }}
                     >
                         <Text style={styles.buttonText}>Next</Text>
                     </TouchableOpacity>
@@ -114,7 +128,7 @@ export default function App({ navigation }) {
     };
 
     const displayError = () => {
-        console.log(response)
+        console.log('DISPLAY ERROR ', response)
         return (
             <View style={styles.userInfo}>
                 <Text style={styles.errorText}>
