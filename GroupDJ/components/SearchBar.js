@@ -4,7 +4,7 @@ import { SearchBar, ListItem } from 'react-native-elements';
 import { SpotifyWebApi } from './SpotifyAuth.js'
 import SearchResults from './SearchResults.js'
 // import { FontAwesome } from '@expo/vector-icons';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 var firebase = require("firebase");
 
@@ -42,10 +42,23 @@ export default function Bar() {
       SpotifyWebApi.search(searchSong, type, options)
         .then((response) => {
           // console.log("new response", response.body.tracks.items)
-          suggestions = response.body.artists.items;
-          suggestions = suggestions.concat(response.body.tracks.items);
-          suggestions = suggestions.concat(response.body.albums.items);
-          suggestions = suggestions.concat(response.body.playlists.items);
+          artists = [...response.body.artists.items]
+          artists.forEach(function (item) {
+            item.searchType = 'artist';
+          })
+          tracks = [...response.body.tracks.items]
+          tracks.forEach(function (item) {
+            item.searchType = 'track';
+          })
+          albums = [...response.body.albums.items]
+          albums.forEach(function (item) {
+            item.searchType = 'album';
+          })
+          playlists = [...response.body.playlists.items]
+          playlists.forEach(function (item) {
+            item.searchType = 'playlist';
+          })
+          suggestions = [...tracks, ...artists, ...albums, ...playlists]
           setNewSongs(suggestions)
         }, err => {
           console.log(err);
@@ -88,7 +101,8 @@ export default function Bar() {
   }
 
   const renderItem = ({ item, index }) => {
-    if (item.images) {
+    //artist
+    if (item.searchType == 'artist') {
       if (item.images[0]) {
         return (
           <ListItem
@@ -101,6 +115,88 @@ export default function Bar() {
             title={item.name}
             leftAvatar={{ source: { uri: item.images[0].url } }}
             rightElement={<MaterialIcons name="person" size={25} color="#888" />}
+            subtitle={'Artist'}
+            subtitleStyle={{ color: '#aaa' }}
+            bottomDivider
+          />
+        );
+      }
+      //artist without image
+      else {
+        return (
+          <ListItem
+            containerStyle={{ backgroundColor: '#333' }}
+            titleStyle={{ color: '#fff' }}
+            button onPress={() => {
+              Haptics.selectionAsync()
+              handleSelection(item)
+            }}
+            title={item.name}
+            leftElement={<MaterialIcons name='error-outline' size={30} />}
+            rightElement={<MaterialIcons name="person" size={25} color="#888" />}
+            subtitle={'Artist'}
+            subtitleStyle={{ color: '#aaa' }}
+            bottomDivider
+          />
+        );
+      }
+    }
+    //album
+    if (item.searchType == 'album') {
+      if (item.images[0]) {
+        return (
+          <ListItem
+            containerStyle={{ backgroundColor: '#333' }}
+            titleStyle={{ color: '#fff' }}
+            button onPress={() => {
+              Haptics.selectionAsync()
+              handleSelection(item)
+            }}
+            title={item.name}
+            leftAvatar={{ source: { uri: item.images[0].url }, rounded: false }}
+            rightElement={<MaterialIcons name="album" size={25} color="#888" />}
+            subtitle={'Album'}
+            subtitleStyle={{ color: '#aaa' }}
+            bottomDivider
+          />
+        );
+      }
+      //album without artwork
+      else {
+        return (
+          <ListItem
+            containerStyle={{ backgroundColor: '#333' }}
+            titleStyle={{ color: '#fff' }}
+            button onPress={() => {
+              Haptics.selectionAsync()
+              handleSelection(item)
+            }}
+            title={item.name}
+            leftElement={<MaterialIcons name='error-outline' size={30} />}
+            rightElement={<MaterialIcons name="album" size={25} color="#888" />}
+            subtitle={'Album'}
+            subtitleStyle={{ color: '#aaa' }}
+            bottomDivider
+          />
+        );
+      }
+    }
+    //playlist
+    if (item.searchType == 'playlist') {
+      if (item.images[0]) {
+        return (
+          <ListItem
+            containerStyle={{ backgroundColor: '#333' }}
+            titleStyle={{ color: '#fff' }}
+            button onPress={() => {
+              Haptics.selectionAsync()
+              handleSelection(item)
+            }}
+            title={item.name}
+            leftAvatar={{ source: { uri: item.images[0].url }, rounded: false }}
+            rightElement={<Ionicons name="albums" size={25} color="#888" />}
+            subtitle={'Playlist'}
+            subtitleStyle={{ color: '#aaa' }}
             bottomDivider
           />
         );
@@ -116,14 +212,16 @@ export default function Bar() {
             }}
             title={item.name}
             leftElement={<MaterialIcons name='error-outline' size={30} />}
-            rightElement={<MaterialIcons name="person" size={25} color="#888" />}
+            rightElement={<Ionicons name="albums" size={25} color="#888" />}
+            subtitle={'Playlist'}
+            subtitleStyle={{ color: '#aaa' }}
             bottomDivider
           />
         );
       }
     }
     //song
-    else {
+    if (item.searchType == "track") {
       if (item.album.images[0].url) {
         return (
           <ListItem
@@ -136,7 +234,7 @@ export default function Bar() {
               addToQueue(item)
             }}
             title={item.name}
-            subtitle={item.artists[0].name}
+            subtitle={`Song • ${item.artists[0].name}`}
             leftAvatar={{ source: { uri: item.album.images[0].url }, rounded: false }}
             rightElement={<MaterialIcons name="music-note" size={25} color="#888" />}
             bottomDivider
@@ -149,12 +247,14 @@ export default function Bar() {
           <ListItem
             containerStyle={{ backgroundColor: '#333' }}
             titleStyle={{ color: '#fff' }}
+            subtitleStyle={{ color: '#aaa' }}
             button onPress={() => {
               Haptics.selectionAsync()
               clearSearch()
               addToQueue(item)
             }}
             title={item.name}
+            subtitle={`Song • ${item.artists[0].name}`}
             leftElement={<MaterialIcons name='error-outline' />}
             rightElement={<MaterialIcons name="music-note" size={25} color="#888" />}
             bottomDivider
