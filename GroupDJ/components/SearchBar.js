@@ -12,7 +12,7 @@ export default function Bar() {
   const [searchSong, setSearchSong] = React.useState("");
   const [newSongs, setNewSongs] = React.useState([]);
   const [itemSelected, setItemSelected] = React.useState();
-  const [modalVisible, setModalVisible] = React.useState(false);
+  const [modalVisible, setModalVisible] = React.useState("");
   // const [showResults, setShowResults] = React.useState("");
 
   const addToQueue = async (item) => {
@@ -30,12 +30,14 @@ export default function Bar() {
     })
     if (!repeat) {
       firebase.database().ref('/Rooms/' + roomKey + "/queue").push(item);
-      setModalVisible(true)
-      console.log('MODAL VISIBLE ', modalVisible)
-      setTimeout(() => {
-        setModalVisible(false)
-      }, 1000);
+      setModalVisible("Added to Queue")
     }
+    else {
+      setModalVisible("Already Added")
+    }
+    setTimeout(() => {
+      setModalVisible("")
+    }, 1000);
   }
 
   const songSearch = (searchSong) => {
@@ -90,18 +92,18 @@ export default function Bar() {
   }
 
   const renderModal = () => {
-    if (modalVisible) {
+    if (modalVisible !== "") {
       return (
         <Modal
           animationType="slide"
           transparent={true}
-          visible={modalVisible}
+          visible={modalVisible !== ""}
           onRequestClose={() => {
             alert('Modal has been closed.');
           }}>
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
-              <Text style={styles.modalText}>Added to Queue</Text>
+              <Text style={styles.modalText}>{modalVisible}</Text>
             </View>
           </View>
         </Modal>

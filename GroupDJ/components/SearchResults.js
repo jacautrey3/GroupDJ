@@ -18,7 +18,7 @@ export default class SearchResults extends Component {
       albumTracks: null,
       album: null,
       selected: null,
-      modalVisible: false
+      modalVisible: ""
     };
     this.findDevices = findDevices.bind(this);
     this.GetSong = GetSong.bind(this);
@@ -50,12 +50,14 @@ export default class SearchResults extends Component {
     })
     if (!repeat) {
       firebase.database().ref('/Rooms/' + roomKey + "/queue").push(item);
-      this.setModalVisible(true)
-      // console.log('MODAL VISIBLE ', this.modalVisible)
-      setTimeout(() => {
-        this.setModalVisible(!this.state.modalVisible)
-      }, 1000);
+      this.setModalVisible("Added to Queue")
     }
+    else {
+      this.setModalVisible("Already Added")
+    }
+    setTimeout(() => {
+      this.setModalVisible("")
+    }, 1000);
   }
 
   setModalVisible(visible) {
@@ -235,13 +237,13 @@ export default class SearchResults extends Component {
             <Modal
               animationType="slide"
               transparent={true}
-              visible={this.state.modalVisible}
+              visible={this.state.modalVisible !== ""}
               onRequestClose={() => {
                 alert('Modal has been closed.');
               }}>
               <View style={styles.centeredView}>
                 <View style={styles.modalView}>
-                  <Text style={styles.modalText}>Added to Queue</Text>
+                  <Text style={styles.modalText}>{this.state.modalVisible}</Text>
                 </View>
               </View>
             </Modal>
