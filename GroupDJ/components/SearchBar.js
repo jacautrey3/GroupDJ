@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { TextInput, View, FlatList, StyleSheet, Text, Image, Platform, ScrollView } from 'react-native';
+import { Modal, TextInput, View, FlatList, StyleSheet, Text, Image, Platform, ScrollView } from 'react-native';
 import { SearchBar, ListItem } from 'react-native-elements';
 import { SpotifyWebApi } from './SpotifyAuth.js'
 import SearchResults from './SearchResults.js'
@@ -12,13 +12,14 @@ export default function Bar() {
   const [searchSong, setSearchSong] = React.useState("");
   const [newSongs, setNewSongs] = React.useState([]);
   const [itemSelected, setItemSelected] = React.useState();
+  const [modalVisible, setModalVisible] = React.useState(false);
   // const [showResults, setShowResults] = React.useState("");
 
-  const addToQueue = (item) => {
+  const addToQueue = async (item) => {
     var roomKey = global.roomKey;
     var repeat = false;
     var ref = firebase.database().ref('/Rooms/' + roomKey + "/queue")
-    ref.once('value', function (snapshot) {
+    await ref.once('value', function (snapshot) {
       snapshot.forEach(function (childSnap) {
         //if song already in queue
         if (childSnap.val().id == item.id) {
@@ -29,6 +30,11 @@ export default function Bar() {
     })
     if (!repeat) {
       firebase.database().ref('/Rooms/' + roomKey + "/queue").push(item);
+      setModalVisible(true)
+      console.log('MODAL VISIBLE ', modalVisible)
+      setTimeout(() => {
+        setModalVisible(false)
+      }, 1000);
     }
   }
 
@@ -81,6 +87,26 @@ export default function Bar() {
     // setShowResults('True');
     // console.log(showResults);
     // console.log("item selected",itemSelected);
+  }
+
+  const renderModal = () => {
+    if (modalVisible) {
+      return (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => {
+            alert('Modal has been closed.');
+          }}>
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <Text style={styles.modalText}>Added to Queue</Text>
+            </View>
+          </View>
+        </Modal>
+      )
+    }
   }
 
   const renderResults = () => {
@@ -230,7 +256,7 @@ export default function Bar() {
             subtitleStyle={{ color: '#aaa' }}
             button onPress={() => {
               Haptics.selectionAsync()
-              clearSearch()
+              // clearSearch()
               addToQueue(item)
             }}
             title={item.name}
@@ -250,7 +276,7 @@ export default function Bar() {
             subtitleStyle={{ color: '#aaa' }}
             button onPress={() => {
               Haptics.selectionAsync()
-              clearSearch()
+              // clearSearch()
               addToQueue(item)
             }}
             title={item.name}
@@ -285,6 +311,7 @@ export default function Bar() {
       </View>
       <View style={{ flex: 1, position: 'relative', top: 0, right: 0, left: 0, zIndex: 2 }}>
         {renderResults()}
+        {renderModal()}
       </View>
     </View>
   );
@@ -293,6 +320,44 @@ export default function Bar() {
 const marginTop = Platform.OS === 'ios' ? 20 : 0;
 
 const styles = StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5
+  },
+  openButton: {
+    backgroundColor: "#F194FF",
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
+    fontWeight: 'bold',
+    fontSize: 20
+  },
   container: {
     backgroundColor: '#000',
     flex: 1,

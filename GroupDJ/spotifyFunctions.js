@@ -161,6 +161,14 @@ export const findDevices = function findDevices() {
     );
 }
 
+// export const GetSong = function GetSong(id) {
+//   SpotifyWebApi.getTrack(id)
+//     .then((response) => {
+//       console.log('GET SONG RESPONSE')
+//       return response;
+//     })
+// }
+
 export const GetSong = function GetSong(id) {
   SpotifyWebApi.getTrack(id)
     .then((response) => {

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { TextInput, View, FlatList, StyleSheet, Text, Image, List } from 'react-native';
+import { Modal, TouchableHighlight, TextInput, View, FlatList, StyleSheet, Text, Image, List } from 'react-native';
 import { SearchBar, ListItem } from 'react-native-elements';
 import { SpotifyWebApi } from './SpotifyAuth.js'
 import { PlaySong, findDevices, GetSong } from '../spotifyFunctions.js'
@@ -17,7 +17,8 @@ export default class SearchResults extends Component {
       artistAlbums: null,
       albumTracks: null,
       album: null,
-      selected: null
+      selected: null,
+      modalVisible: false
     };
     this.findDevices = findDevices.bind(this);
     this.GetSong = GetSong.bind(this);
@@ -34,11 +35,11 @@ export default class SearchResults extends Component {
     this.suggestionSelected(this.props.itemSelected, this.props.itemSelected.type);
   }
 
-  addToQueue(item) {
+  async addToQueue(item) {
     var roomKey = global.roomKey;
     var repeat = false;
     var ref = firebase.database().ref('/Rooms/' + roomKey + "/queue")
-    ref.once('value', function (snapshot) {
+    await ref.once('value', function (snapshot) {
       snapshot.forEach(function (childSnap) {
         //if song already in queue
         if (childSnap.val().id == item.id) {
@@ -49,7 +50,18 @@ export default class SearchResults extends Component {
     })
     if (!repeat) {
       firebase.database().ref('/Rooms/' + roomKey + "/queue").push(item);
+      this.setModalVisible(true)
+      // console.log('MODAL VISIBLE ', this.modalVisible)
+      setTimeout(() => {
+        this.setModalVisible(!this.state.modalVisible)
+      }, 1000);
     }
+  }
+
+  setModalVisible(visible) {
+    this.setState({
+      modalVisible: visible
+    });
   }
 
   suggestionSelected(value, type) {
@@ -63,6 +75,7 @@ export default class SearchResults extends Component {
       this.getArtistAlbums(value);
     }
     else if (type === 'track') {
+      console.log('ADD TO QUEUE VALUE', value)
       this.addToQueue(value);
     }
     else if (type === 'album') {
@@ -112,6 +125,7 @@ export default class SearchResults extends Component {
       avatarStyle={{ padding: 0 }}
       button onPress={() => {
         Haptics.selectionAsync()
+        console.log('ADD TO QUEUE ITEM ', item)
         this.addToQueue(item)
         // PlaySong(item.id, this.state.devices)
         // console.log("RENDER ITEM", item)
@@ -145,7 +159,6 @@ export default class SearchResults extends Component {
     // console.log("this.state.album \n", this.state.album);
     return (
       <View style={{ flex: 1, width: '100%' }}>
-
         <FlatList
           contentContainerStyle={{ flex: 1 }}
           style={{ flex: 1, width: '100%' }}
@@ -158,7 +171,11 @@ export default class SearchResults extends Component {
               avatarStyle={{ padding: 0 }}
               button onPress={() => {
                 Haptics.selectionAsync()
-                GetSong(item.id)
+                console.log('GET SONG ITEM ', item)
+                SpotifyWebApi.getTrack(item.id)
+                  .then((response) => {
+                    this.addToQueue(response.body)
+                  })
               }}
               title={item.name}
               rightElement={<MaterialIcons name="playlist-add" size={25} color="#aaa" />}
@@ -167,7 +184,7 @@ export default class SearchResults extends Component {
           )}
           extraData={this.state}
         />
-      </View>
+      </View >
     );
   }
 
@@ -198,6 +215,7 @@ export default class SearchResults extends Component {
 
 
   render() {
+    const { modalVisible } = this.state;
     if (this.state.selected == "artist") {
       return (
         <View style={{ flex: 1, width: '100%' }}>
@@ -214,10 +232,23 @@ export default class SearchResults extends Component {
               />
             }
             <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 25 }}> {this.props.itemSelected.name} </Text>
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={this.state.modalVisible}
+              onRequestClose={() => {
+                alert('Modal has been closed.');
+              }}>
+              <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+                  <Text style={styles.modalText}>Added to Queue</Text>
+                </View>
+              </View>
+            </Modal>
           </View>
           {this.renderTopTracks(this.props.itemSelected)}
           {this.renderAlbums(this.props.itemSelected)}
-        </View>
+        </View >
       );
     }
     else {
@@ -236,6 +267,19 @@ export default class SearchResults extends Component {
               />
             }
             <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 25 }}> {this.props.itemSelected.name} </Text>
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={this.state.modalVisible}
+              onRequestClose={() => {
+                alert('Modal has been closed.');
+              }}>
+              <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+                  <Text style={styles.modalText}>Added to Queue</Text>
+                </View>
+              </View>
+            </Modal>
           </View>
           {this.renderAlbumTracks(this.props.itemSelected)}
         </View>
@@ -245,6 +289,44 @@ export default class SearchResults extends Component {
 }
 
 const styles = StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5
+  },
+  openButton: {
+    backgroundColor: "#F194FF",
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
+    fontWeight: 'bold',
+    fontSize: 20
+  },
   container: {
     backgroundColor: '#000',
     flexGrow: 1,
