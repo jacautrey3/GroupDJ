@@ -4,6 +4,7 @@ import { TouchableOpacity, StyleSheet, Text, View, Button, ScrollView, Image } f
 import styles from '../style.js'
 import { SpotifyWebApi } from './SpotifyAuth.js'
 import { Entypo } from '@expo/vector-icons';
+var firebase = require("firebase");
 
 export default class CreateRoom extends Component {
   constructor(props) {
@@ -40,7 +41,8 @@ export default class CreateRoom extends Component {
     SpotifyWebApi.getMyCurrentPlaybackState({})
       .then(data => {
         if (data.body != null) {
-          console.log("duration: ", data.body.item.duration_ms - data.body.progress_ms);
+          firebase.database().ref('/Rooms/' + global.roomKey + "/currentSong/").set(data.body.item);
+          // console.log("duration: ", data.body.item.duration_ms - data.body.progress_ms);
           if (data.body.item.duration_ms - data.body.progress_ms < 1500) {
             // console.log("play next song")
             this.NextSong();
@@ -62,7 +64,7 @@ export default class CreateRoom extends Component {
   findDevices() {
     SpotifyWebApi.getMyDevices()
       .then((response) => {
-        console.log(response.body.devices);
+        // console.log(response.body.devices);
         return response.body.devices;
       })
   }

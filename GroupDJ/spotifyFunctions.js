@@ -84,40 +84,30 @@ export const PlaySong = function PlaySong(song, devices) {
       function (err) {
         console.log("play error", err);
       })
-  // this.songTimer = setInterval(() => {
-  //   this.nextSong()}, 3000);
 }
 
 export const NextSong = function NextSong() {
-  // get cur song id
-  console.log('next function')
   var roomKey = global.roomKey;
   var nextId;
   var ref = firebase.database().ref('/Rooms/' + roomKey + "/queue")
+  //get first song in queue
   ref.orderByKey().limitToFirst(1).once('value', function (snapshot) {
     snapshot.forEach(function (childSnap) {
-      console.log("cur song id", childSnap.val().id)
-      nextId = childSnap.val();
-      //remove current song
-      firebase.database().ref('/Rooms/' + roomKey + "/queue/" + childSnap.key).remove();
-    })
-    //get next song id
-    ref.orderByKey().limitToFirst(1).once('value', function (snapshot) {
-      snapshot.forEach(function (childSnap) {
-        console.log("next song", childSnap.val().id)
-        nextId = childSnap.val().id;
-        // play next song
-        var devices = [];
-        SpotifyWebApi.getMyDevices()
-          .then(response => {
-            // console.log(response);
-            devices = response.body.devices;
-            PlaySong(nextId, response.body.devices);
-          }, err => {
-            console.log("getmydevice error", err);
-          }
-          );
-      })
+      console.log("next song", childSnap.val().id)
+      nextId = childSnap.val().id;
+      var devices = [];
+      //get device to play song on
+      SpotifyWebApi.getMyDevices()
+        .then(response => {
+          devices = response.body.devices;
+          //play first song in queue
+          PlaySong(nextId, response.body.devices);
+          //remove current song
+          firebase.database().ref('/Rooms/' + roomKey + "/queue/" + childSnap.key).remove();
+        }, err => {
+          console.log("getmydevice error", err);
+        }
+        );
     })
   })
 }
